@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"levertsui.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在工作中，有时会涉及到深拷贝和浅拷贝的内容，发现有些地方理解的不够透彻，所以在网上搜集资料总结一下，主要分四个方面来介绍下iOS中深拷贝和浅拷贝：  对象的拷贝； 集合的拷贝； 如何对集合进行深拷贝？ 总结对象的拷贝对对象进行拷贝，通过调用copy或mutableCopy方法来实现： 调用 copy方法返回的对象为不可变对象,需要实现NSCopying协议 ； 调用mutableCopy方法返回的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS深拷贝和浅拷贝">
+<meta property="og:url" content="https://levertsui.github.io/2017/12/14/iOS%E6%B7%B1%E6%8B%B7%E8%B4%9D%E5%92%8C%E6%B5%85%E6%8B%B7%E8%B4%9D/index.html">
+<meta property="og:site_name" content="leverTsui">
+<meta property="og:description" content="在工作中，有时会涉及到深拷贝和浅拷贝的内容，发现有些地方理解的不够透彻，所以在网上搜集资料总结一下，主要分四个方面来介绍下iOS中深拷贝和浅拷贝：  对象的拷贝； 集合的拷贝； 如何对集合进行深拷贝？ 总结对象的拷贝对对象进行拷贝，通过调用copy或mutableCopy方法来实现： 调用 copy方法返回的对象为不可变对象,需要实现NSCopying协议 ； 调用mutableCopy方法返回的">
+<meta property="og:locale">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-adeebf183df99baa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-bcac53e449d8b0a7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-0eab0dce73bccbec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-7edadb3411c425dd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-c329ce5e7a3eb4e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-b541a083c1018ea6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-50c419ac45f0dd51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-cc6317d514f6c864.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-8d496f137b153a4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/117999-a48a67077a1f4d4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="article:published_time" content="2017-12-14T04:26:00.000Z">
+<meta property="article:modified_time" content="2022-02-08T01:46:16.889Z">
+<meta property="article:author" content="leverTsui">
+<meta property="article:tag" content="Object-C">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/117999-adeebf183df99baa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+<link rel="canonical" href="https://levertsui.github.io/2017/12/14/iOS%E6%B7%B1%E6%8B%B7%E8%B4%9D%E5%92%8C%E6%B5%85%E6%8B%B7%E8%B4%9D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>iOS深拷贝和浅拷贝 | leverTsui</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">leverTsui</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">要有狮子的力量， 菩萨的心肠</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://levertsui.github.io/2017/12/14/iOS%E6%B7%B1%E6%8B%B7%E8%B4%9D%E5%92%8C%E6%B5%85%E6%8B%B7%E8%B4%9D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="leverTsui">
+      <meta itemprop="description" content="要有狮子的力量， 菩萨的心肠">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="leverTsui">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS深拷贝和浅拷贝
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-12-14 12:26:00" itemprop="dateCreated datePublished" datetime="2017-12-14T12:26:00+08:00">2017-12-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-02-08 09:46:16" itemprop="dateModified" datetime="2022-02-08T09:46:16+08:00">2022-02-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在工作中，有时会涉及到深拷贝和浅拷贝的内容，发现有些地方理解的不够透彻，所以在网上搜集资料总结一下，主要分四个方面来介绍下iOS中深拷贝和浅拷贝：</p>
+<ul>
+<li>对象的拷贝；</li>
+<li>集合的拷贝；</li>
+<li>如何对集合进行深拷贝？</li>
+<li>总结<h4 id="对象的拷贝"><a href="#对象的拷贝" class="headerlink" title="对象的拷贝"></a>对象的拷贝</h4>对对象进行拷贝，通过调用<code>copy</code>或<code>mutableCopy</code>方法来实现：</li>
+<li>调用 <code>copy</code>方法返回的对象为不可变对象,需要实现<code>NSCopying</code>协议 ；</li>
+<li>调用<code>mutableCopy</code>方法返回的对象为可变对象，需要实现<code>NSMutableCopying</code>协议 ；</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/117999-adeebf183df99baa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="object copying"><br>上图是苹果文档中关于对象拷贝的实例图，从图中可知：</p>
+<blockquote>
+<p>浅拷贝：<code>object A</code>和<code>object B</code>及其属性使用同样的内存地址，简单说明的话，可以认为是指针复制；<br>深拷贝：<code>object A</code>和<code>object B</code>及其属性使用不同的内存地址，简单说明的话，可以认为是内容复制。</p>
+</blockquote>
+<p>下面通过分析<code>NSString</code>、<code>NSMutableString</code>、和自定义对象<code>DBTestModel</code>，调用<code>copy</code>和<code>mutableCopy</code>之后，分析其返回的对象及此对象的属性的内存地址来判断其行为是深拷贝还是浅拷贝。</p>
+<h5 id="NSString"><a href="#NSString" class="headerlink" title="NSString"></a>NSString</h5><p><img src="http://upload-images.jianshu.io/upload_images/117999-bcac53e449d8b0a7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="NSString.png"></p>
+<p>通过打印的信息可知：</p>
+<ul>
+<li>对象<code>string</code>调用<code>copy</code>方法后返回的对象<code>copySting</code>，其所对应的内存地址和对象<code>string</code>一致，即为指针复制；</li>
+<li>对象<code>string</code>调用<code>mutableCopy</code>方法后返回的对象<code>mutaCopySting</code>，其所对应的内存地址和对象<code>string</code>不一致，即为指内容复制；</li>
+</ul>
+<h5 id="NSMutableString"><a href="#NSMutableString" class="headerlink" title="NSMutableString"></a>NSMutableString</h5><p><img src="http://upload-images.jianshu.io/upload_images/117999-0eab0dce73bccbec.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="NSMutableString.png"></p>
+<p>通过打印的信息可知：</p>
+<ul>
+<li>对象<code>mutaString</code>调用<code>copy</code>方法后返回的对象<code>copyMutaString</code>，其所对应的内存地址和对象<code>mutaString</code>不一致，即为内容复制；</li>
+<li>对象<code>mutaString</code>调用<code>mutableCopy</code>方法后返回的对象<code>mutaCopyMutaString</code>，其所对应的内存地址和对象<code>mutaString</code>不一致，即为指内容复制；</li>
+</ul>
+<h5 id="DBTestModel"><a href="#DBTestModel" class="headerlink" title="DBTestModel"></a>DBTestModel</h5><p>下面为自定义的对象’DBTestModel’: </p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="string">&lt;Foundation/Foundation.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="string">&lt;Mantle/Mantle.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">DBTestModel</span> : <span class="title">MTLModel</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *text;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">NSArray</span> *sourceArray;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">strong</span>) <span class="built_in">NSMutableArray</span> *mutableArray;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithText:(<span class="built_in">NSString</span> *)text</span><br><span class="line">                 sourceArray:(<span class="built_in">NSArray</span> *)sourceArray</span><br><span class="line">                mutableArray:(<span class="built_in">NSMutableArray</span> *)mutableArray;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>定义了三个属性，<code>text</code>、<code>sourceArray</code>、<code>mutableArray</code>。</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)testCustomObject &#123;</span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutableArray = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line">    DBTestModel *model = [[DBTestModel alloc] initWithText:<span class="string">@&quot;text&quot;</span></span><br><span class="line">                                               sourceArray:@[<span class="string">@&quot;test1&quot;</span>,<span class="string">@&quot;test2&quot;</span>]</span><br><span class="line">                                              mutableArray:mutableArray];</span><br><span class="line">    DBTestModel *copyModel = [model <span class="keyword">copy</span>];</span><br><span class="line">    DBTestModel *mutaCopyModel = [model mutableCopy];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;DBTestModel memory address&quot;</span>);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;original   :%p&quot;</span>, model);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;copy       :%p&quot;</span>, copyModel);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;mutableCopy:%p&quot;</span>, mutaCopyModel);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\n&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;text memory address&quot;</span>);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;original   :%p&quot;</span>, model.text);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;copy       :%p&quot;</span>, copyModel.text);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;mutableCopy:%p&quot;</span>, mutaCopyModel.text);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\n&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;sourceArray memory address&quot;</span>);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;original   :%p&quot;</span>, model.sourceArray);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;copy       :%p&quot;</span>, copyModel.sourceArray);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;mutableCopy:%p&quot;</span>, mutaCopyModel.sourceArray);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\n&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;mutableArray memory address&quot;</span>);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;original   :%p&quot;</span>, model.mutableArray);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;copy       :%p&quot;</span>, copyModel.mutableArray);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;mutableCopy:%p&quot;</span>, mutaCopyModel.mutableArray);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\n&quot;</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打印结果如下：<br><img src="http://upload-images.jianshu.io/upload_images/117999-7edadb3411c425dd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"><br>分析其打印数据可知：</p>
+<ul>
+<li>除<code>DBTestModel</code>实例对象中的属性<code>text</code>和<code>sourceArray</code>调用<code>copy</code>后，没有产生一个新的对象，为指针复制，其余均为内容复制。</li>
+</ul>
+<h4 id="集合的拷贝"><a href="#集合的拷贝" class="headerlink" title="集合的拷贝"></a>集合的拷贝</h4><p><img src="http://upload-images.jianshu.io/upload_images/117999-c329ce5e7a3eb4e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<h5 id="不可变集合NSArray"><a href="#不可变集合NSArray" class="headerlink" title="不可变集合NSArray"></a>不可变集合<code>NSArray</code></h5><figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)testCollectiveCopy &#123;</span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutableArray1 = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line">    DBTestModel *model1 = [[DBTestModel alloc] initWithText:<span class="string">@&quot;text&quot;</span></span><br><span class="line">                                               sourceArray:@[<span class="string">@&quot;test1&quot;</span>,<span class="string">@&quot;test2&quot;</span>]</span><br><span class="line">                                              mutableArray:mutableArray1];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutableArray2 = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line">    DBTestModel *model2 = [[DBTestModel alloc] initWithText:<span class="string">@&quot;text&quot;</span></span><br><span class="line">                                                sourceArray:@[<span class="string">@&quot;test1&quot;</span>,<span class="string">@&quot;test2&quot;</span>]</span><br><span class="line">                                               mutableArray:mutableArray2];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutableArray3 = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line">    DBTestModel *model3 = [[DBTestModel alloc] initWithText:<span class="string">@&quot;text&quot;</span></span><br><span class="line">                                                sourceArray:@[<span class="string">@&quot;test1&quot;</span>,<span class="string">@&quot;test2&quot;</span>]</span><br><span class="line">                                               mutableArray:mutableArray3];</span><br><span class="line">    <span class="built_in">NSArray</span> *array = @[model1,model2,model3];</span><br><span class="line">    <span class="built_in">NSArray</span> *copyArray = [array <span class="keyword">copy</span>];</span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutaCopyArray = [array mutableCopy];</span><br><span class="line"></span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\nNSArray memory address\noriginal   :%p\ncopy       :%p\nmutableCopy:%p\n&quot;</span>,</span><br><span class="line">          array,copyArray,mutaCopyArray);</span><br><span class="line"> </span><br><span class="line">    DBTestModel *firstCopyModel = [copyArray firstObject];</span><br><span class="line">    DBTestModel *firstMutableCopyModel = [mutaCopyArray firstObject];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\nDBTestModel memory address\noriginal   :%p\ncopy       :%p\nmutableCopy:%p\n&quot;</span>,</span><br><span class="line">          model1,firstCopyModel,firstMutableCopyModel);</span><br><span class="line"> </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\nDBTestModel sourceArray memory address\noriginal   :%p\ncopy       :%p\nmutableCopy:%p\n&quot;</span>,</span><br><span class="line">          model1.sourceArray,firstCopyModel.sourceArray,firstMutableCopyModel.sourceArray); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打印结果如下： </p>
+<p><img src="http://upload-images.jianshu.io/upload_images/117999-b541a083c1018ea6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="NSArray.png"></p>
+<p>分析其打印数据可知：</p>
+<ul>
+<li>除<code>NSArray</code>实例对象调用<code>mutableCopy</code>方法为内容复制外，其余的均为指针拷贝。</li>
+</ul>
+<h5 id="可变集合NSMutableArray"><a href="#可变集合NSMutableArray" class="headerlink" title="可变集合NSMutableArray"></a>可变集合<code>NSMutableArray</code></h5><p>测试代码如下：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)testCollectiveMutacopy &#123;</span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutableArray1 = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line">    DBTestModel *model1 = [[DBTestModel alloc] initWithText:<span class="string">@&quot;text&quot;</span></span><br><span class="line">                                                sourceArray:@[<span class="string">@&quot;test1&quot;</span>,<span class="string">@&quot;test2&quot;</span>]</span><br><span class="line">                                               mutableArray:mutableArray1];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutableArray2 = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line">    DBTestModel *model2 = [[DBTestModel alloc] initWithText:<span class="string">@&quot;text&quot;</span></span><br><span class="line">                                                sourceArray:@[<span class="string">@&quot;test1&quot;</span>,<span class="string">@&quot;test2&quot;</span>]</span><br><span class="line">                                               mutableArray:mutableArray2];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutableArray3 = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line">    DBTestModel *model3 = [[DBTestModel alloc] initWithText:<span class="string">@&quot;text&quot;</span></span><br><span class="line">                                                sourceArray:@[<span class="string">@&quot;test1&quot;</span>,<span class="string">@&quot;test2&quot;</span>]</span><br><span class="line">                                               mutableArray:mutableArray3];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSArray</span> *array1 = @[model1,model2,model3];</span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutaArray = [<span class="built_in">NSMutableArray</span> arrayWithArray:array1];</span><br><span class="line">    <span class="built_in">NSMutableArray</span> *copyMutaArray = [mutaArray <span class="keyword">copy</span>];</span><br><span class="line">    <span class="built_in">NSMutableArray</span> *mutaCopyMutaArray= [mutaArray mutableCopy];</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\nNSMutableArray memory address\noriginal   :%p\ncopy       :%p\nmutableCopy:%p\n&quot;</span>,</span><br><span class="line">          mutaArray,copyMutaArray,mutaCopyMutaArray);</span><br><span class="line">    </span><br><span class="line">    DBTestModel *firstCopyModel = [copyMutaArray firstObject];</span><br><span class="line">    DBTestModel *firstMutableCopyModel = [mutaCopyMutaArray firstObject];</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\nDBTestModel memory address\noriginal   :%p\ncopy       :%p\nmutableCopy:%p\n&quot;</span>,</span><br><span class="line">          model1,firstCopyModel,firstMutableCopyModel);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;\nDBTestModel sourceArray memory address\noriginal   :%p\ncopy       :%p\nmutableCopy:%p\n&quot;</span>,</span><br><span class="line">          model1.sourceArray,firstCopyModel.sourceArray,firstMutableCopyModel.sourceArray);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试结果如下： </p>
+<p><img src="http://upload-images.jianshu.io/upload_images/117999-50c419ac45f0dd51.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="NSMutableArray.png"></p>
+<p>分析其打印数据可知：<br>除<code>NSMutableArray </code>实例对象调用<code>copy</code>和<code>mutableCopy</code>方法为内容复制外，数组内容的元素均为指针拷贝。<br>结合上述测试代码得出的测试数据，得出如下的表格：<br><img src="http://upload-images.jianshu.io/upload_images/117999-cc6317d514f6c864.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>从上图可以看出，<code>NSArray</code>或<code>NSMutableArray</code>对象调用<code>copy</code>或<code>mutableCopy</code>时，得到的集合中的元素均为指针拷贝，如果想要实现集合对象的深拷贝，应该怎么办呢？</p>
+<ul>
+<li><h4 id="如何对集合进行深拷贝？"><a href="#如何对集合进行深拷贝？" class="headerlink" title="如何对集合进行深拷贝？"></a>如何对集合进行深拷贝？</h4></li>
+<li><h5 id="集合的单层深复制-one-level-deep-copy"><a href="#集合的单层深复制-one-level-deep-copy" class="headerlink" title="集合的单层深复制 (one-level-deep copy)"></a>集合的单层深复制 (one-level-deep copy)</h5>可以用 <code>initWithArray:copyItems:</code> 将第二个参数设置为YES即可深复制，如<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSArray *copyArray = [[NSArray alloc] initWithArray:array copyItems:YES];</span><br></pre></td></tr></table></figure>
+如果你用这种方法深复制，集合里的每个对象都会收到 copyWithZone: 消息。同时集合里的对象需遵循 NSCopying 协议，否则会崩溃。<br><img src="http://upload-images.jianshu.io/upload_images/117999-8d496f137b153a4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></li>
+</ul>
+<p>得到的结果如下：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/117999-a48a67077a1f4d4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+<p>从打印结果可以看出，拷贝后和拷贝前的数组中的<code>DBTestModel</code>对象的<code>sourceArray</code>的内存地址是相同的，这种拷贝方式只能够提供一层内存拷贝(<code>one-level-deep copy</code>)，而非真正的深复制。</p>
+<ul>
+<li><h5 id="A-true-deep-copy"><a href="#A-true-deep-copy" class="headerlink" title="A true deep copy"></a>A true deep copy</h5>使用归档来实现:</li>
+</ul>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSArray</span> *copyArray = [<span class="built_in">NSKeyedUnarchiver</span> unarchiveObjectWithData:</span><br><span class="line">       [<span class="built_in">NSKeyedArchiver</span> archivedDataWithRootObject:array]];</span><br></pre></td></tr></table></figure>
+
+<p>####小结<br>在项目中遇到需要需要对对象进行拷贝时，需要理解以下两点：<br>1、对系统自带的不可变对象进行<code>copy</code>时，为指针复制；<br>2、对集合类对象进行<code>copy</code>或<code>mutableCopy</code>时，集合类的元素均为指针复制；<br>3、如只需对集合进行单层深拷贝，可以使用<code>initWithArray:copyItems:</code>类似的方法，将第二个参数设为<code>YES</code>来实现，如需实现集合的完全复制，可以使用归解档来实现；<br>4、第三方库<code> Mantle</code>中的<code>MTLModel</code>类有实现<code>NSCoding</code>和<code>NSCopying</code>协议，自定义的类继承<code>MTLModel</code>类即可实现<code>NSCoding</code>和<code>NSCopying</code>协议。</p>
+<h4 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h4><p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/General/Conceptual/DevPedia-CocoaCore/ObjectCopying.html">Object copying</a><br><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/Collections/Articles/Copying.html">Copying Collections</a>
+ </p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Object-C/" rel="tag"># Object-C</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/11/08/MBProgressHUD%20%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" rel="prev" title="MBProgressHUD 源码分析">
+      <i class="fa fa-chevron-left"></i> MBProgressHUD 源码分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/01/19/iOS%E9%95%BF%E6%8C%89%E7%A7%BB%E5%8A%A8Table%20View%20Cells/" rel="next" title="iOS长按移动Table View Cells">
+      iOS长按移动Table View Cells <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E6%8B%B7%E8%B4%9D"><span class="nav-number">1.</span> <span class="nav-text">对象的拷贝</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#NSString"><span class="nav-number">1.1.</span> <span class="nav-text">NSString</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#NSMutableString"><span class="nav-number">1.2.</span> <span class="nav-text">NSMutableString</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#DBTestModel"><span class="nav-number">1.3.</span> <span class="nav-text">DBTestModel</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E7%9A%84%E6%8B%B7%E8%B4%9D"><span class="nav-number">2.</span> <span class="nav-text">集合的拷贝</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E5%8F%98%E9%9B%86%E5%90%88NSArray"><span class="nav-number">2.1.</span> <span class="nav-text">不可变集合NSArray</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%AF%E5%8F%98%E9%9B%86%E5%90%88NSMutableArray"><span class="nav-number">2.2.</span> <span class="nav-text">可变集合NSMutableArray</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%AF%B9%E9%9B%86%E5%90%88%E8%BF%9B%E8%A1%8C%E6%B7%B1%E6%8B%B7%E8%B4%9D%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">如何对集合进行深拷贝？</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E7%9A%84%E5%8D%95%E5%B1%82%E6%B7%B1%E5%A4%8D%E5%88%B6-one-level-deep-copy"><span class="nav-number">3.1.</span> <span class="nav-text">集合的单层深复制 (one-level-deep copy)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#A-true-deep-copy"><span class="nav-number">3.2.</span> <span class="nav-text">A true deep copy</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="leverTsui"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">leverTsui</p>
+  <div class="site-description" itemprop="description">要有狮子的力量， 菩萨的心肠</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">leverTsui</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
