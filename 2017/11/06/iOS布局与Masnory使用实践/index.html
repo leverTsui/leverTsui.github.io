@@ -275,7 +275,7 @@
 </ul>
 <p>通过以上描述，将<code>AutoLayout</code>系统的作用描述如图所示：</p>
 <p><img src="http://upload-images.jianshu.io/upload_images/5835116-55978c66c8eea66b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="FBB5F53F-0B23-48B2-B150-39B405BFB335.png"></p>
-<h5 id="AutoLayout的性能"><a href="#AutoLayout的性能" class="headerlink" title="AutoLayout的性能"></a><code>AutoLayout</code>的性能</h5><p>从<code>AutoLayout</code>的原理，我们可以得出布局系统最后仍然需要通过<code>frame</code>来进行布局，相比原有的布局系统加入了从约束计算 出<code>frame</code> 的过程,那么这个过程对性能是否会影响呢？<br>你可以在 <a href="https://github.com/leverTsui/summary"><strong>这里</strong></a> 找到这次对 <code>Layout</code> 性能测量使用的代码。<br>代码分别使用<code>Auto Layout</code>、嵌套视图层级中使用 <code>Auto Layout </code>和<code>frame</code>对 <code>N</code> 个视图进行布局，测算其运行时间。</p>
+<h5 id="AutoLayout的性能"><a href="#AutoLayout的性能" class="headerlink" title="AutoLayout的性能"></a><code>AutoLayout</code>的性能</h5><p>从<code>AutoLayout</code>的原理，我们可以得出布局系统最后仍然需要通过<code>frame</code>来进行布局，相比原有的布局系统加入了从约束计算 出<code>frame</code> 的过程,那么这个过程对性能是否会影响呢？<br>你可以在 <a target="_blank" rel="noopener" href="https://github.com/leverTsui/summary"><strong>这里</strong></a> 找到这次对 <code>Layout</code> 性能测量使用的代码。<br>代码分别使用<code>Auto Layout</code>、嵌套视图层级中使用 <code>Auto Layout </code>和<code>frame</code>对 <code>N</code> 个视图进行布局，测算其运行时间。</p>
 <p>对视图数量在 1~35 之间布局时间进行测量，结果如下：</p>
 <p><img src="http://upload-images.jianshu.io/upload_images/117999-045780ced38306d5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="视图数量范围为 1~35.png"></p>
 <p>对视图数量在 10~500 之间布局时间进行测量，结果如下：</p>
